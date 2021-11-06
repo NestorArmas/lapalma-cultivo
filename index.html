@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Cultivos afectados por la colada lávica - La Palma </title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	
+	<link rel="shortcut icon" type="image/x-icon" href="docs/images/favicon.ico" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+
+	<link rel="stylesheet" type="text/css" href="Leaflet-MiniMap-master/dist/Control.MiniMap.min.css">
+	
+	<script src="plugin/Leaflet.Control.Opacity/dist/L.Control.Opacity.js"></script>
+    <link href="plugin/Leaflet.Control.Opacity/dist/L.Control.Opacity.css" rel="stylesheet" />
+	<link rel="stylesheet" href="Leaflet.Control.Opacity-master/docs/css/style.css">
+	
+	<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="Leaflet.SlideMenu-master/src/L.Control.SlideMenu.css">
+	<script src="Leaflet.SlideMenu-master/src/L.Control.SlideMenu.js"></script>
+
+
+	<style>
+		html, body {
+			height: 100%;
+			margin: 0;
+		}
+	
+	</style>
+
+	<style>
+    #map { 
+        width: 100%; 
+        height: 100%;
+     }
+.info { 
+    padding: 6px 8px; 
+    font: 14px/16px Arial, Helvetica, sans-serif; 
+    background: white; 
+    background: rgba(255, 255, 255, 0.8); 
+    box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+    border-radius: 5px; 
+} 
+.info h4 { 
+    margin: 0 0 5px; 
+    color: #777;
+ }
+.legend { 
+    text-align: left; 
+    line-height: 18px; 
+    color: #555; 
+    } 
+    .legend i { 
+        width: 18px; 
+        height: 18px; 
+        float: left; 
+        margin-right: 8px; 
+        opacity: 0.7; 
+        }
+.left { 
+    padding: 6px 8px; 
+    font: 14px/16px Arial, Helvetica, sans-serif; 
+    background: white; 
+    background: rgba(255, 255, 255, 0.8); 
+    box-shadow: 0 0 15px rgba(0,0,0,0.2); 
+    border-radius: 5px; 
+}
+    </style>
+
+</head>
+<body>
+
+<div id='map'></div>
+
+<script src="Leaflet-MiniMap-master/dist/Control.MiniMap.min.js"></script>
+
+
+<script type="text/javascript" src="data/cultivos_0.js"></script>
+
+<script type="text/javascript">
+
+	var map = L.map('map').fitBounds([[28.53442668415177,-18.008609147328702],[28.702833084702238,-17.735394726552887]], 2);
+
+	var grayscale = L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+		maxZoom: 20,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			'Imagen © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/light-v9',
+		tileSize: 512,
+		zoomOffset: -1
+	}).addTo(map);
+
+	// Añadir minimapa
+	var carto_light = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {attribution: '©OpenStreetMap, ©CartoDB',subdomains: 'abcd',maxZoom: 24});
+
+	var minimap = new L.Control.MiniMap(carto_light,
+		{
+			toggleDisplay: true,
+			minimized: false,
+			position: "bottomleft"
+		}).addTo(map);
+	
+	// Añadir escala
+	new L.control.scale({imperial: false}).addTo(map);
+
+	// control que muestra info al colocar cursor sobre cultivo
+	var info = L.control();
+
+	info.onAdd = function (map) {
+		this._div = L.DomUtil.create('div', 'info');
+		this.update();
+		return this._div;
+	};
+
+	info.update = function (props) {
+		this._div.innerHTML = '<h4>Cultivos afectados</h4>' +  (props ?
+			'<b>' + props.AGRUPACION + '</b><br/>'
+             + props.DESCRIP + '<br/>'
+             + props.AREA + ' m<sup>2</sup>'
+			: 'Coloca el cursor sobre una parcela');
+	};
+
+	info.addTo(map);
+
+
+	// get color en función de la agrupación del cultivo
+	function getColor(d) {
+		if (d === "Platanera") return '#FEFF00';
+        if (d === "Viña") return '#9C0074';
+        if (d === "Erial") return '#452500';
+        if (d === "Sin Cultivo") return 'grey';
+        if (d === "Cereales, Leguminosas, y Pastizales") return '#2FFF6A';
+        if (d === "Cítricos") return '#FFA72F';
+        if (d === "Monte") return 'green';
+        if (d === "Frutales Subtropicales") return '#FF2F8C';
+        if (d === "Frutales Templados") return '#FF6129';
+        if (d === "Hortalizas") return '#38C59A';
+        if (d === "Huerto Familiar") return '#0019B5';
+        if (d === "Papa") return '#BF8848';
+        if (d === "Flores y Plantas Ornamentales") return '#00FDFF';
+
+        return "grey";
+	}
+
+	function style(feature) {
+		return {
+			weight: 0,
+			opacity: 1,
+			color: 'white',
+			dashArray: '3',
+			fillOpacity: 0.6,
+			fillColor: getColor(feature.properties.AGRUPACION)
+		};
+	}
+
+    function color(feature) {
+        if (d === "Platanera") return '#FFF600'; else
+        if (d === "Viña") return '#9C0074'; else
+        return "grey";
+
+        };
+
+	function highlightFeature(e) {
+		var layer = e.target;
+
+		layer.setStyle({
+			weight: 2,
+			color: '#666',
+			dashArray: '',
+			fillOpacity: 0.7
+		});
+
+		if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+			layer.bringToFront();
+		}
+
+		info.update(layer.feature.properties);
+	}
+
+	var geojson;
+
+	function resetHighlight(e) {
+		geojson.resetStyle(e.target);
+		info.update();
+	}
+
+	function zoomToFeature(e) {
+		map.fitBounds(e.target.getBounds());
+	}
+
+	function onEachFeature(feature, layer) {
+		layer.on({
+			mouseover: highlightFeature,
+			mouseout: resetHighlight,
+			click: zoomToFeature
+		});
+	}
+
+	geojson = L.geoJson(json_cultivos_0, {
+		style: style,
+		onEachFeature: onEachFeature,
+        color: color
+
+	}).addTo(map);
+
+	map.attributionControl.addAttribution('Datos de cultivos &copy; <a href="http://www.opendatalapalma.es/">La Palma Open Data</a>')
+	map.attributionControl.addAttribution('Perímetro colada &copy; <a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a>');
+
+	// Añadir leyenda
+	var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+
+    var div = L.DomUtil.create('div', 'info legend');
+    labels = ['<strong>Cultivos</strong>'],
+    categories = ['Platanera','Viña','Erial','Sin cultivo','Cereales, Leguminosas, y Pastizales', 'Cítricos', 'Monte', 'Frutales Subtropicales', 'Frutales Templados', 'Hortalizas', 'Huerto Familiar', 'Papa', 'Flores y Plantas Ornamentales'];
+	
+    for (var i = 0; i < categories.length; i++) {
+
+            div.innerHTML += 
+            labels.push(
+                '<i class="circle" style="background:' + getColor(categories[i]) + '"></i> ' +
+            (categories[i] ? categories[i] : '+'));
+
+        }
+        div.innerHTML = labels.join('<br>');
+    return div;
+    };
+    legend.addTo(map);
+
+	// Añadir control basemap layers + overlays (activar/desactivar)
+	var OSM = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+				attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'}),
+
+		Imagery = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+					attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+	});
+
+	var baseLayers = {
+		"Mapbox Light-v9": grayscale,
+		"OpenStreetMap": OSM,
+		"Esri World": Imagery,
+	};
+	
+	var overlays = {
+		"Cultivos": geojson,
+		
+	};
+
+	L.control.layers(baseLayers, overlays, {
+			collapsed: true,
+	}).addTo(map);
+	
+
+	// Añadir menú desplegable con información adicional
+	// Contenido
+	var left  = '<h1>Cultivos afectados por la colada lávica </br> (La Palma)</h1>';
+
+	var contents = '<hr>';
+		contents += '<h2>Información</h2>';
+		contents += '<p>Este WebMap tiene como objetivo la representación de las parcelas de cultivos afectadas por la colada de lava.</p>';
+		contents += '<p>La leyenda que se presenta no sigue un orden según su afección sino a criterio propio; dada la importancia del cultivo de "Platanera" y de la "Viña" se colocan en primer lugar. Tanto "Erial" y "Sin Cultivo" sí tienen una mayor predominancia en la zona afectada y se ubica en las siguientes posiciones.</p>';
+		contents += '<h3>Fuentes</h3>';
+		contents += '<p><ul><li><a href="http://www.opendatalapalma.es/">La Palma Open Data</a><li/><a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a></ul></p>';
+		contents += '<h3>Última actualización</h3>';
+		contents += '<p>  4 / 11 / 2021</p>';
+		contents += '<h4>Autor</h4>';
+		contents += '<p>Néstor Armas Hernández | <a href="https://twitter.com/NestorAHdez">@NestorAHdez<a/><br>';
+		
+	// left
+	var slideMenu = L.control.slideMenu('', {position: 'topleft', menuposition: 'topleft', width: '30%', height: '550px', delay: '20', icon: 'fa-chevron-left'}).addTo(map);
+				slideMenu.setContents(left + contents);
+
+
+</script>
+
+
+
+</body>
+</html>
