@@ -24,7 +24,9 @@
 	<link rel="stylesheet" href="Leaflet.SlideMenu-master/src/L.Control.SlideMenu.css">
 	<script src="Leaflet.SlideMenu-master/src/L.Control.SlideMenu.js"></script>
 
-
+	<link rel="stylesheet" href="sidebar-v2-master/css/leaflet-sidebar.css">
+	<script src="sidebar-v2-master/js/leaflet-sidebar.js"></script>
+	
 	<style>
 		html, body {
 			height: 100%;
@@ -70,12 +72,80 @@
     box-shadow: 0 0 15px rgba(0,0,0,0.2); 
     border-radius: 5px; 
 }
+
+.texto {
+        font-style: Arial, Helvetica, sans-serif;
+		text-align: justify;
+        color: rgb(94, 94, 94);
+}	
+
+
+.texto1 {
+	font-style: Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-align: right;
+	color: rgb(255, 0, 0)
+}
+
+.pie {
+	font-size: 12px;
+	text-align: left;
+	clear: both;
+	bottom: 0;
+	width: 100%;
+	color:rgb(94, 94, 94)
+}
     </style>
 
 </head>
 <body>
+	<!-- Añadir menú desplegable con información adicional --> 
+	<div id="sidebar" class="sidebar collapsed">
+			<!-- Nav tabs -->
+			<div class="sidebar-tabs">
+				<ul role="tablist">
+					<li><a href="#home" role="tab"><i class="fa fa-bars"></i></a></li>
+					<li class="disabled"><a href="#messages" role="tab"><i class="fa fa-minus"></i></a></li>
+					<li><a href="https://twitter.com/NestorAHdez" role="tab" target="_blank"><i class="fa fa-twitter"></i></a></li>
+					<li><a href="https://www.linkedin.com/in/nestorarmashdez/" role="tab" target="_blank"><i class="fa fa-linkedin"></i></a> </li>
+				</ul>
+	
+			</div>
+	
+			<!-- Tab panes --> 
+			<div class="sidebar-content">
+				<div class="sidebar-pane" id="home">
+					<h1 class="sidebar-header">
+						Cultivos afectados por la colada lávica
+						<span class="sidebar-close"><i class="fa fa-chevron-left"></i></span>
+					</h1>
+					
+					<p class="texto"><h4>Información</h4></p>
 
-<div id='map'></div>
+					<p class="texto">Este mapa web tiene como objetivo la visualización de las parcelas de cultivos afectadas por la colada de lava. </p>
+	
+					<p class="texto">La leyenda que se presenta no sigue un orden según su afección sino a criterio propio; dada la importancia del cultivo de "Platanera" y de la "Viña" se colocan en primer lugar. Tanto "Erial" y "Sin Cultivo" sí tienen una mayor predominancia en la zona afectada y se ubica en las siguientes posiciones.</p>
+	
+					<p class="texto">Se muestra el tipo de cultivo/cobertura y su área afectada en metros cuadrados.</p>
+	
+					<p class="texto"><h4>Fuentes</h4>
+						<ul>
+							<li><a href="http://www.opendatalapalma.es/">La Palma Open Data</a></li>
+							<li><a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a></li>
+						</ul>
+					</p>
+					<p class="texto1">*Datos actualizados:
+						<i>6 / 11 / 2021</i> 
+					</p>
+				<p class="pie"><strong>Autor: </strong>Néstor Armas Hernández</p>
+				</div>
+
+			</div>
+		</div>
+		
+
+<div id='map' class="sidebar-map"></div>
+
 
 <script src="Leaflet-MiniMap-master/dist/Control.MiniMap.min.js"></script>
 
@@ -257,28 +327,10 @@
 	
 
 	// Añadir menú desplegable con información adicional
-	// Contenido
-	var left  = '<h1>Cultivos afectados por la colada lávica </br> (La Palma)</h1>';
 
-	var contents = '<hr>';
-		contents += '<h2>Información</h2>';
-		contents += '<p>Este WebMap tiene como objetivo la representación de las parcelas de cultivos afectadas por la colada de lava.</p>';
-		contents += '<p>La leyenda que se presenta no sigue un orden según su afección sino a criterio propio; dada la importancia del cultivo de "Platanera" y de la "Viña" se colocan en primer lugar. Tanto "Erial" y "Sin Cultivo" sí tienen una mayor predominancia en la zona afectada y se ubica en las siguientes posiciones.</p>';
-		contents += '<h3>Fuentes</h3>';
-		contents += '<p><ul><li><a href="http://www.opendatalapalma.es/">La Palma Open Data</a><li/><a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a></ul></p>';
-		contents += '<h3>Última actualización</h3>';
-		contents += '<p>  6 / 11 / 2021</p>';
-		contents += '<h4>Autor</h4>';
-		contents += '<p>Néstor Armas Hernández | <a href="https://twitter.com/NestorAHdez">@NestorAHdez<a/><br>';
-		
-	// left
-	var slideMenu = L.control.slideMenu('', {position: 'topleft', menuposition: 'topleft', width: '30%', height: '550px', delay: '20', icon: 'fa-chevron-left'}).addTo(map);
-				slideMenu.setContents(left + contents);
-
+var sidebar = L.control.sidebar('sidebar').addTo(map);
 
 </script>
-
-
 
 </body>
 </html>
