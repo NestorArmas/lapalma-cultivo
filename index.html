@@ -123,13 +123,13 @@
 
 					<p class="texto">Este mapa web tiene como objetivo la visualización de las parcelas de cultivos afectadas por la colada de lava. </p>
 	
-					<p class="texto">La leyenda que se presenta no sigue un orden según su afección sino a criterio propio; dada la importancia del cultivo de "Platanera" y de la "Viña" se colocan en primer lugar. Tanto "Erial" y "Sin Cultivo" sí tienen una mayor predominancia en la zona afectada y se ubica en las siguientes posiciones.</p>
+					<p class="texto">La leyenda que se presenta no sigue un orden según su afección sino a criterio propio; dada la importancia del cultivo de "Platanera" y de la "Viña" se colocan en primer lugar. Tanto "Sin Cultivo" y "Pastos" sí tienen una mayor predominancia en la zona afectada y se ubica en las siguientes posiciones.</p>
 	
-					<p class="texto">Se muestra el tipo de cultivo/cobertura y su área afectada en metros cuadrados.</p>
+					<p class="texto">Se muestra el tipo de cultivo y su área afectada en metros cuadrados.</p>
 	
 					<p class="texto"><h4>Fuentes</h4>
 						<ul>
-							<li><a href="http://www.opendatalapalma.es/">La Palma Open Data</a></li>
+							<li><a href="https://datos.canarias.es/catalogos/general/dataset/mapa-de-cultivos-de-canarias/resource/ff7b32aa-26a4-43bc-bb4d-6212289ab777">Canarias Datos Abiertos</a></li>
 							<li><a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a></li>
 						</ul>
 					</p>
@@ -149,6 +149,8 @@
 
 
 <script type="text/javascript" src="data/cultivos_0.js"></script>
+<script type="text/javascript" src="data/colada_0.js"></script>
+
 
 <script type="text/javascript">
 
@@ -187,9 +189,9 @@
 
 	info.update = function (props) {
 		this._div.innerHTML = '<h4>Cultivos afectados</h4>' +  (props ?
-			'<b>' + props.AGRUPACION + '</b><br/>'
-             + props.DESCRIP + '<br/>'
-             + props.AREA + ' m<sup>2</sup>'
+			'<b>' + props.agrupacion + '</b><br/>'
+             + props.cultivo_na + '<br/>'
+             + props.area_m2 + ' m<sup>2</sup>'
 			: 'Coloca el cursor sobre una parcela');
 	};
 
@@ -200,19 +202,21 @@
 	function getColor(d) {
 		if (d === "Platanera") return '#FEFF00';
         if (d === "Viña") return '#9C0074';
-        if (d === "Erial") return '#452500';
         if (d === "Sin Cultivo") return 'grey';
-        if (d === "Cereales, Leguminosas, y Pastizales") return '#2FFF6A';
+		if (d === "Pastos") return '#EFF191';
+		if (d === "Barbecho") return '#452500';
+        if (d === "Cereales y leguminosas") return '#2FFF6A';
         if (d === "Cítricos") return '#FFA72F';
-        if (d === "Monte") return 'green';
+        if (d === "Tomate") return 'red';
         if (d === "Frutales Subtropicales") return '#FF2F8C';
         if (d === "Frutales Templados") return '#FF6129';
         if (d === "Hortalizas") return '#38C59A';
         if (d === "Huerto Familiar") return '#0019B5';
         if (d === "Papa") return '#BF8848';
-        if (d === "Flores y Plantas Ornamentales") return '#00FDFF';
+        if (d === "Ornamentales y aromáticas") return '#00FDFF';
+		
 
-        return "grey";
+        return "#CDCDCD";
 	}
 
 	function style(feature) {
@@ -222,14 +226,14 @@
 			color: 'white',
 			dashArray: '3',
 			fillOpacity: 0.6,
-			fillColor: getColor(feature.properties.AGRUPACION)
+			fillColor: getColor(feature.properties.agrupacion)
 		};
 	}
 
     function color(feature) {
         if (d === "Platanera") return '#FFF600'; else
         if (d === "Viña") return '#9C0074'; else
-        return "grey";
+        return "#CDCDCD";
 
         };
 
@@ -251,6 +255,7 @@
 	}
 
 	var geojson;
+	var geojson2;
 
 	function resetHighlight(e) {
 		geojson.resetStyle(e.target);
@@ -269,6 +274,12 @@
 		});
 	}
 
+	geojson2 = L.geoJson(json_colada_0, {
+		style: style,
+        color: color
+
+	}).addTo(map);
+
 	geojson = L.geoJson(json_cultivos_0, {
 		style: style,
 		onEachFeature: onEachFeature,
@@ -276,7 +287,10 @@
 
 	}).addTo(map);
 
-	map.attributionControl.addAttribution('Datos de cultivos &copy; <a href="http://www.opendatalapalma.es/">La Palma Open Data</a>')
+	
+
+
+	map.attributionControl.addAttribution('Datos de cultivos &copy; <a href="https://datos.canarias.es/catalogos/general/dataset/mapa-de-cultivos-de-canarias/resource/ff7b32aa-26a4-43bc-bb4d-6212289ab777">Canarias Datos Abiertos</a>')
 	map.attributionControl.addAttribution('Perímetro colada &copy; <a href="https://emergency.copernicus.eu/mapping/list-of-components/EMSR546"> Copernicus EMS</a>');
 
 	// Añadir leyenda
@@ -285,7 +299,7 @@
 
     var div = L.DomUtil.create('div', 'info legend');
     labels = ['<strong>Cultivos</strong>'],
-    categories = ['Platanera','Viña','Erial','Sin cultivo','Cereales, Leguminosas, y Pastizales', 'Cítricos', 'Monte', 'Frutales Subtropicales', 'Frutales Templados', 'Hortalizas', 'Huerto Familiar', 'Papa', 'Flores y Plantas Ornamentales'];
+    categories = ['Platanera','Viña','Sin cultivo','Pastos','Cereales y leguminosas', 'Cítricos', 'Tomate','Barbecho', 'Frutales Subtropicales', 'Frutales Templados', 'Hortalizas', 'Huerto Familiar', 'Papa', 'Ornamentales y aromáticas'];
 	
     for (var i = 0; i < categories.length; i++) {
 
@@ -316,6 +330,8 @@
 	
 	var overlays = {
 		"Cultivos": geojson,
+		"Colada": geojson2,
+		
 		
 	};
 
